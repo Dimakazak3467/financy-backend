@@ -35,8 +35,8 @@ public class WebSecurityConfig {
                         .requestMatchers("/h2-console").permitAll()
                         .requestMatchers("/api/person/register").permitAll()
                         .requestMatchers("/api/person/username/{username}").permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/api/person/**").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers("/api/person/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/person/**").authenticated()
+                        .requestMatchers("/api/person/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .httpBasic(httpBase -> {
