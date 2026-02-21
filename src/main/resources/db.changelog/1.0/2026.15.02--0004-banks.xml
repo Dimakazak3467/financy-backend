@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="2026.15.02--0004-banks" author="efofin">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="banks"/>
+            </not>
+        </preConditions>
+        <createTable tableName="banks">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="person_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="bank_code" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="grace_period_days" type="INTEGER"/>
+            <column name="loan_amount" type="NUMERIC"/>
+            <column name="loan_start" type="DATE"/>
+            <column name="grace_period_gap" type="INTEGER"/>
+        </createTable>
+
+
+    </changeSet>
+
+</databaseChangeLog>

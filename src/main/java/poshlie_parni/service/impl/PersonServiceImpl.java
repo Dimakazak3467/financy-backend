@@ -3,11 +3,15 @@ package poshlie_parni.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import poshlie_parni.dto.BankRequestDTO;
+import poshlie_parni.dto.BankResponseDTO;
 import poshlie_parni.dto.PersonDTO;
 import poshlie_parni.dto.PersonRegisterDTO;
+import poshlie_parni.entity.Banks;
 import poshlie_parni.entity.Person;
 import poshlie_parni.exeption.PersonAlreadyExistsExeption;
 import poshlie_parni.exeption.PersonNotFoundExeption;
+import poshlie_parni.repository.BankRepository;
 import poshlie_parni.repository.PersonRepository;
 import poshlie_parni.service.PersonService;
 import poshlie_parni.util.PersonMapper;
@@ -23,6 +27,7 @@ public class PersonServiceImpl implements PersonService {
 
     private final PersonRepository personRepository;
     private final PasswordEncoder passwordEncoder;
+    private final BankRepository bankRepository;
 
     @Override
     public List<PersonDTO> getAllPersons() {
@@ -86,5 +91,55 @@ public class PersonServiceImpl implements PersonService {
         }
 
         return PersonMapper.convertToDto(optionalPerson.get());
+    }
+    @Override
+    public void addBank(Long personId, BankRequestDTO bankRequestDTO) {
+        Person person = personRepository.findById(personId)
+                .orElseThrow(() -> new PersonNotFoundExeption("Person Not Found"));
+        Banks bank = new Banks();
+        bank.setBankCode(bankRequestDTO.getBankCode());
+
+        bank.setGracePeriodDays(bankRequestDTO.getGracePeriodDays());
+        bank.setLoanAmount(bankRequestDTO.getLoanAmount());
+        bank.setLoanStart(bankRequestDTO.getLoanStart());
+        bank.setGracePeriodGap(bankRequestDTO.getGracePeriodGap());
+
+        bank.setPerson(person);
+        bankRepository.save(bank);
+
+
+    }
+
+    @Override
+    public List<BankResponseDTO> getMyBanks(Long personId) {
+        Person person = personRepository.findById(personId)
+                .orElseThrow(() -> new PersonNotFoundExeption("Person not found"));
+
+        List<Banks> banks = bankRepository.findByPersonId(personId);
+
+        return banks.stream()
+                .map(bank -> new BankResponseDTO(
+                        bank.getBankCode(),
+                        bank.getGracePeriodDays(),
+                        bank.getLoanAmount(),
+                        bank.getLoanStart(),
+                        bank.getGracePeriodGap()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void deleteBank(Long bankId, Long personId) {
+        Person person = personRepository.findById(personId)
+                .orElseThrow(() -> new PersonNotFoundExeption("Person not found"));
+
+        Banks bank = bankRepository.findById(bankId)
+                .orElseThrow(() -> new PersonNotFoundExeption("Bank not found"));
+
+        if (!bank.getPerson().equals(person)) {
+            throw new PersonNotFoundExeption("Bank does not belong to this user");
+        }
+
+        bankRepository.delete(bank);
     }
 }

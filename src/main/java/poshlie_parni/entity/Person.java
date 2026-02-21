@@ -5,8 +5,10 @@ import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 @Data
 @Entity
@@ -25,6 +27,29 @@ public class Person implements UserDetails {
 
     @Column(name = "password")
     private String password;
+
+    @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Banks> banks = new ArrayList<>();
+
+
+    public void addBank(Banks bank) {
+        banks.add(bank);
+        bank.setPerson(this);
+    }
+
+    public void removeBank(Banks bank) {
+        banks.remove(bank);
+        bank.setPerson(null);
+    }
+
+
+
+
+
+
+
+
+
 
 
     @Override
